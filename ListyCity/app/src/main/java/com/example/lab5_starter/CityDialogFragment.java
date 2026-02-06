@@ -16,11 +16,15 @@ import java.util.Objects;
 public class CityDialogFragment extends DialogFragment {
     interface CityDialogListener {
         void updateCity(City city, String title, String year);
+
         void addCity(City city);
+
+        void deleteCity(City city);
     }
+
     private CityDialogListener listener;
 
-    public static CityDialogFragment newInstance(City city){
+    public static CityDialogFragment newInstance(City city) {
         Bundle args = new Bundle();
         args.putSerializable("City", city);
 
@@ -32,10 +36,9 @@ public class CityDialogFragment extends DialogFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof CityDialogListener){
+        if (context instanceof CityDialogListener) {
             listener = (CityDialogListener) context;
-        }
-        else {
+        } else {
             throw new RuntimeException("Implement listener");
         }
     }
@@ -51,17 +54,17 @@ public class CityDialogFragment extends DialogFragment {
         Bundle bundle = getArguments();
         City city;
 
-        if (Objects.equals(tag, "City Details") && bundle != null){
+        if (Objects.equals(tag, "City Details") && bundle != null) {
             city = (City) bundle.getSerializable("City");
             assert city != null;
             editMovieName.setText(city.getName());
             editMovieYear.setText(city.getProvince());
+        } else {
+            city = null;
         }
-        else {
-            city = null;}
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        return builder
+        builder
                 .setView(view)
                 .setTitle("City Details")
                 .setNegativeButton("Cancel", null)
@@ -75,5 +78,15 @@ public class CityDialogFragment extends DialogFragment {
                     }
                 })
                 .create();
+
+
+        //https://developer.android.com/develop/ui/views/components/dialogs#:~:text=Positive:%20use%20this%20to%20accept,alert%20dialog%20like%20the%20following:
+        if (Objects.equals(tag, "City Details")) {
+            builder.setNeutralButton("Delete", (dialog, which) -> {
+                listener.deleteCity(city);
+            });
+        }
+        return builder.create();
     }
 }
+
